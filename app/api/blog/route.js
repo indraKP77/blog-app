@@ -1,8 +1,9 @@
 import { ConnectDB } from "@/lib/config/db";
-import { log } from "console";
+import BlogModel from "@/lib/config/models/BlogModel";
 
 const { NextResponse } = require("next/server");
 import {writeFile} from 'fs/promises'
+import { title } from "process";
 
 export async function GET(request){
 
@@ -27,5 +28,18 @@ export async function POST(request){
     await writeFile(path,buffer);
     const imgUrl = `/${timestamp}_${image.name}`;
     
-    return NextResponse.json({imgUrl})
+    const blogData = {
+        title:`${formData.get('title')}`,
+        description:`${formData.get('description')}`,
+        category:`${formData.get('category')}`,
+        author:`${formData.get('author')}`,
+        image:`${imgUrl}`,
+        authorImg:`${formData.get('authorImg')}`
+    }
+
+    await BlogModel.create(blogData);
+    console.log("Blog Saved");
+    
+
+    return NextResponse.json({"success":true,"msg":"Blog Added"})
 }
